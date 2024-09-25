@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import roomescape.auth.MemberAuthorization;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
 class JwtProviderTest {
@@ -20,8 +21,8 @@ class JwtProviderTest {
     void create_token() {
         String payload = "test";
 
-        JwtTokenInfo jwtTokenInfo = jwtProvider.createToken(payload);
+        MemberAuthorization memberAuthorization = jwtProvider.createByPayload(payload);
 
-        assertNotNull(jwtTokenInfo.accessToken());
+        assertNotNull(memberAuthorization.authorization());
     }
 }

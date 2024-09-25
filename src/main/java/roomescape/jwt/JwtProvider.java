@@ -7,9 +7,11 @@ import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import roomescape.auth.AuthorizationProvider;
+import roomescape.auth.MemberAuthorization;
 
 @Component
-public class JwtProvider {
+public class JwtProvider implements AuthorizationProvider {
 
     private final String jwtSecret;
     private final Long jwtExpiration;
@@ -22,7 +24,7 @@ public class JwtProvider {
         this.jwtExpiration = jwtExpiration;
     }
 
-    public JwtTokenInfo createToken(String payload) {
+    public MemberAuthorization createByPayload(String payload) {
         Claims claims = Jwts.claims().setSubject(payload);
         Date now = new Date();
         Date expiration = new Date(now.getTime() + jwtExpiration);
@@ -33,6 +35,6 @@ public class JwtProvider {
             .signWith(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecret)))
             .compact();
 
-        return new JwtTokenInfo(tokenValue);
+        return new MemberAuthorization(tokenValue);
     }
 }
