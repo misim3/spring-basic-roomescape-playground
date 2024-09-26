@@ -1,6 +1,5 @@
 package roomescape.jwt;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -12,6 +11,8 @@ import roomescape.auth.MemberAuthorization;
 
 @Component
 public class JwtProvider implements AuthorizationProvider {
+
+    private static final String USER_IDX = "email";
 
     private final String jwtSecret;
     private final Long jwtExpiration;
@@ -25,16 +26,24 @@ public class JwtProvider implements AuthorizationProvider {
     }
 
     public MemberAuthorization createByPayload(String payload) {
-        Claims claims = Jwts.claims().setSubject(payload);
         Date now = new Date();
         Date expiration = new Date(now.getTime() + jwtExpiration);
         String tokenValue = Jwts.builder()
-            .setClaims(claims)
+            .claim(USER_IDX, payload)
             .setIssuedAt(now)
             .setExpiration(expiration)
             .signWith(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecret)))
             .compact();
 
         return new MemberAuthorization(tokenValue);
+    }
+
+    public String parseAuthorization(String token) {
+        return Jwts.parserBuilder()
+            .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecret)))
+            .build()
+            .parseClaimsJws(token)
+            .getBody()
+            .get(USER_IDX, String.class);
     }
 }

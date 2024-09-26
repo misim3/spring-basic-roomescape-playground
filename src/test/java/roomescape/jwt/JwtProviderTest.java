@@ -25,4 +25,14 @@ class JwtProviderTest {
 
         assertNotNull(memberAuthorization.authorization());
     }
+
+    @Test
+    void parse_token() {
+        String payload = "test";
+        MemberAuthorization token = jwtProvider.createByPayload(payload);
+
+        String actual = jwtProvider.parseAuthorization(token.authorization());
+
+        assertEquals(payload, actual);
+    }
 }
