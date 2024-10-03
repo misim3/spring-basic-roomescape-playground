@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import roomescape.auth.AuthorizationProvider;
-import roomescape.auth.MemberAuthorization;
+import roomescape.auth.MemberAuthContext;
+import roomescape.auth.MemberCredential;
 
 @RestController
 public class MemberController {
@@ -23,14 +24,19 @@ public class MemberController {
 
     @PostMapping("/members")
     public ResponseEntity createMember(@RequestBody MemberRequest memberRequest) {
-        MemberResponse member = memberService.createMember(memberRequest);
+        MemberResponse member = memberService.createMember(
+            memberRequest.name(),
+            memberRequest.email(),
+            memberRequest.password()
+        );
         return ResponseEntity.created(URI.create("/members/" + member.getId())).body(member);
     }
 
     @PostMapping("/login")
     public void login(@RequestBody MemberLoginRequest memberLoginRequest, HttpServletResponse response) {
-        MemberAuthorization memberAuthorization = authorizationProvider.createByPayload(memberLoginRequest.email());
-        Cookie cookie = new Cookie("token", memberAuthorization.authorization());
+        MemberAuthContext context = memberService.loginByEmailAndPassword(memberLoginRequest.email(), memberLoginRequest.password());
+        MemberCredential memberCredential = authorizationProvider.create(context);
+        Cookie cookie = new Cookie("token", memberCredential.authorization());
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
