@@ -24,11 +24,17 @@ public class MissionStepTest {
         params.put("email", "admin@email.com");
         params.put("password", "password");
 
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+                .log()
+                .all()
                 .contentType(ContentType.JSON)
                 .body(params)
-                .when().post("/login")
-                .then().log().all()
+            .when()
+                .post("/login")
+            .then()
+                .log()
+                .all()
                 .statusCode(200)
                 .extract();
 
@@ -46,26 +52,38 @@ public class MissionStepTest {
         params.put("time", "1");
         params.put("theme", "1");
 
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .body(params)
-            .cookie("token", token)
-            .contentType(ContentType.JSON)
-            .post("/reservations")
-            .then().log().all()
-            .extract();
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+                .log()
+                .all()
+                .body(params)
+                .cookie("token", token)
+                .contentType(ContentType.JSON)
+            .when()
+                .post("/reservations")
+            .then()
+                .log()
+                .all()
+                .extract();
 
         assertThat(response.statusCode()).isEqualTo(201);
         assertThat(response.as(ReservationResponse.class).getName()).isEqualTo("어드민");
 
         params.put("name", "브라운");
 
-        ExtractableResponse<Response> adminResponse = RestAssured.given().log().all()
-            .body(params)
-            .cookie("token", token)
-            .contentType(ContentType.JSON)
-            .post("/reservations")
-            .then().log().all()
-            .extract();
+        ExtractableResponse<Response> adminResponse = RestAssured
+            .given()
+                .log()
+                .all()
+                .body(params)
+                .cookie("token", token)
+                .contentType(ContentType.JSON)
+            .when()
+                .post("/reservations")
+            .then()
+                .log()
+                .all()
+                .extract();
 
         assertThat(adminResponse.statusCode()).isEqualTo(201);
         assertThat(adminResponse.as(ReservationResponse.class).getName()).isEqualTo("브라운");
@@ -77,13 +95,19 @@ public class MissionStepTest {
         params.put("email", email);
         params.put("password", password);
 
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(ContentType.JSON)
-            .body(params)
-            .when().post("/login")
-            .then().log().all()
-            .statusCode(200)
-            .extract();
+        ExtractableResponse<Response> response = RestAssured
+            .given()
+                .log()
+                .all()
+                .contentType(ContentType.JSON)
+                .body(params)
+            .when()
+                .post("/login")
+            .then()
+                .log()
+                .all()
+                .statusCode(200)
+                .extract();
 
         return response.headers().get("Set-Cookie").getValue().split(";")[0].split("=")[1];
     }
