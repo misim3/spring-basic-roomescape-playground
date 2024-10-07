@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.List;
+import roomescape.auth.Authentication;
+import roomescape.auth.MemberAuthContext;
 
 @RestController
 public class ReservationController {
@@ -26,13 +28,25 @@ public class ReservationController {
     }
 
     @PostMapping("/reservations")
-    public ResponseEntity create(@RequestBody ReservationRequest reservationRequest) {
-        if (reservationRequest.name() == null
-                || reservationRequest.date() == null
+    public ResponseEntity create(
+        @Authentication MemberAuthContext memberAuthContext,
+        @RequestBody ReservationRequest reservationRequest
+    ) {
+        if (reservationRequest.date() == null
                 || reservationRequest.theme() == null
                 || reservationRequest.time() == null) {
             return ResponseEntity.badRequest().build();
         }
+
+        if (reservationRequest.name() == null) {
+            reservationRequest = new ReservationRequest(
+                memberAuthContext.name(),
+                reservationRequest.date(),
+                reservationRequest.theme(),
+                reservationRequest.time()
+            );
+        }
+
         ReservationResponse reservation = reservationService.save(reservationRequest);
 
         return ResponseEntity.created(URI.create("/reservations/" + reservation.getId())).body(reservation);
