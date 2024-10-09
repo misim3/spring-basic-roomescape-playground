@@ -27,7 +27,7 @@ public class MemberService {
     public MemberAuthContext loginByEmailAndPassword(String email, String password) {
         try {
             Member member = memberDao.findByEmailAndPassword(email, password);
-            return new MemberAuthContext(member.getName(), member.getEmail());
+            return new MemberAuthContext(member.getName(), member.getRole());
         } catch (DataAccessException e) {
             throw new IllegalArgumentException("Invalid email or password");
         }
